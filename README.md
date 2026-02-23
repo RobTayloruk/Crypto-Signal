@@ -70,3 +70,27 @@ Underpinning crypto-signal for most of our technical analysis is [TA-Lib](https:
 I am not your financial adviser, nor is this tool. Use this program as an educational tool, and nothing more. None of the contributors to this project are liable for any losses you may incur. Be wise and always do your own research.
 
 We recommend you begin by learning the core principles used in traditional asset classes since they are less volatile & apply your knowledge in simulated trading before liquidating your dreams.
+
+## AI Dashboard (Real-Time + Actionable Insights)
+
+This repository now includes an advanced Streamlit dashboard that pulls open market data in real time and generates AI-style trade hints.
+
+### Data sources
+- CoinGecko public API for live market and sparkline data
+- Alternative.me Fear & Greed API for sentiment context
+
+### Run dashboard locally
+```bash
+pip install -r app/requirements-dashboard.txt
+streamlit run app/dashboard.py
+```
+
+The dashboard includes:
+- Professional market screen with tabbed layout (Market, AI Insights, Auto Trade Bot)
+- Market structure map (market cap, momentum, volatility) and per-asset 7-day microtrend
+- AI tips & hints with confidence levels, rationale, and risk notes
+- Auto Trade Bot console with presets (`Scalp Pro`, `Intraday Alpha`, `Swing Smart`)
+- Execution planner that generates position sizing, stop loss, and take profit per signal
+- Webhook-ready JSON payload preview for connecting to your trade executor
+
+> Educational use only; not financial advice.
