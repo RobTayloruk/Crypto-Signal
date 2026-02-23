@@ -1,1 +1,8 @@
--r app/requirements-dashboard.txt
+# Core runtime
+streamlit>=1.34.0
+plotly>=5.20.0
+pandas>=1.5.0
+requests>=2.31.0
+
+# Testing
+pytest>=8.2.0

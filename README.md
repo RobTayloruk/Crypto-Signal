@@ -1,55 +1,71 @@
 # Crypto Signal Pro Platform
 
-A rebuilt Python trading platform + data dashboard with live crypto market ingestion, full technical indicator coverage, strategy bots, and execution planning.
+A complete Python trading platform + crypto data dashboard with live market ingestion, advanced indicators, multi-bot strategy scoring, AI insights, and execution planning.
 
-## Core capabilities
+## Features
 
-- **Live market data** from CoinGecko (market universe + per-asset market chart)
-- **Professional dashboard UI** with tabs for market overview, trading terminal, and execution center
-- **Rich visuals** including treemap, momentum movers chart, RSI/MACD panels, bot radar chart, AI signal wheel, and allocation pie chart
-- **Indicator engine** with:
-  - SMA / EMA
-  - RSI
-  - MACD (line, signal, histogram)
-  - Bollinger Bands
-  - ATR
-  - Stochastic (%K/%D)
-  - OBV
-  - VWAP
-- **Strategy bots**:
-  - TrendBot
-  - MeanReversionBot
-  - BreakoutBot
-- **AI insights** for each tracked asset with confidence and rationale
-- **Execution planner** with bot presets and webhook-ready order payload
-- **Fallback data mode** so the platform still runs when upstream APIs are unavailable
+- **Live market data ingestion** from CoinGecko (universe and per-asset chart history)
+- **Advanced dashboard graphics**:
+  - market structure scatter
+  - market cap treemap
+  - top momentum movers bar chart
+  - price + EMA/SMA/Bollinger overlays
+  - RSI oscillator panel
+  - MACD panel
+  - bot radar chart
+  - AI strength polar wheel
+  - position allocation pie chart
+- **Full indicator stack**: SMA, EMA, RSI, MACD, Bollinger Bands, ATR, Stochastic, OBV, VWAP
+- **Trading bots**: TrendBot, MeanReversionBot, BreakoutBot
+- **AI insight scoring** with confidence and rationale
+- **Execution center** with presets and webhook-ready order payloads
+- **Fallback fixtures** to keep app functional if API calls fail
 
-## Repository structure
+## Project Structure
 
-- `app/dashboard.py` — Streamlit platform UI
-- `app/platform.py` — orchestration layer
-- `app/market_data.py` — live market data adapters
-- `app/indicators.py` — technical indicator engine
-- `app/bots.py` — strategy bots and signal aggregation
-- `app/signals.py` — deterministic AI insight scoring
-- `app/bot.py` — execution presets and order builder
-- `tests/test_core.py` — platform unit checks
+- `app/dashboard.py` – Streamlit UI
+- `app/platform.py` – orchestration layer
+- `app/market_data.py` – live/fallback market adapters
+- `app/indicators.py` – technical indicators
+- `app/bots.py` – bot engines and aggregation
+- `app/signals.py` – AI scoring
+- `app/bot.py` – order planner presets
+- `app/self_check.py` – dependency/env validator
+- `tests/test_core.py` – platform tests
 
-## Quickstart
+## Quick Start
 
 ```bash
 python -m pip install -r requirements.txt
+python app/self_check.py
 streamlit run app/dashboard.py
 ```
 
-## Development
+## One-command bootstrap
+
+```bash
+bash scripts/bootstrap.sh
+```
+
+## Docker Run
+
+```bash
+docker compose up --build
+```
+
+## Developer Commands
 
 ```bash
 make install
+make check-env
 make lint
 make test
 make run
 ```
+
+## Notes
+
+If upstream APIs are rate-limited or unavailable, fallback datasets are used so the app remains navigable.
 
 ## Disclaimer
 
