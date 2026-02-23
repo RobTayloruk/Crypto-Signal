@@ -3,4 +3,6 @@ settings.env
 config.yml
 .vscode
 .idea/
-lib/ta-lib/
+__pycache__/
+.pytest_cache/
+*.pyc

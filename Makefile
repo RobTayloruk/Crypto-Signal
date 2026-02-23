@@ -1,11 +1,13 @@
-DOCKER_REPO_NAME ?= shadowreaver/
-DOCKER_CONTAINER_NAME ?= crypto-signal
-DOCKER_IMAGE_NAME ?= ${DOCKER_REPO_NAME}${DOCKER_CONTAINER_NAME}
-GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
+.PHONY: install run lint test
 
-build:
-	docker build -t ${DOCKER_IMAGE_NAME}:${GIT_BRANCH} .
-	docker tag ${DOCKER_IMAGE_NAME}:${GIT_BRANCH} ${DOCKER_IMAGE_NAME}:latest
+install:
+	python -m pip install -r requirements.txt
 
 run:
-	docker run -it --rm -v $PWD/config.yml:/app/config.yml ${DOCKER_IMAGE_NAME}
+	streamlit run app/dashboard.py
+
+lint:
+	python -m py_compile app/dashboard.py app/platform.py app/market_data.py app/indicators.py app/bots.py app/signals.py app/bot.py tests/test_core.py
+
+test:
+	python -m pytest -q
