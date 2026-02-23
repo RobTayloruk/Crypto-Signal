@@ -6,6 +6,7 @@ from app.indicators import with_indicators
 from app.market_data import get_ohlcv
 from app.platform import build_asset_snapshot, build_market_insights
 from app.signals import classify_confidence, generate_ai_insight
+from app.wallet import load_watch_wallets
 
 
 def test_confidence_bands():
@@ -54,3 +55,7 @@ def test_ai_insight_shape():
     ins = generate_ai_insight(row, 50)
     assert ins.symbol
     assert 0 <= ins.score <= 100
+
+
+def test_wallet_loader_empty():
+    assert load_watch_wallets([]) == []

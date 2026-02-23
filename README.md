@@ -19,6 +19,9 @@ A complete Python trading platform + crypto data dashboard with live market inge
 - **Trading bots**: TrendBot, MeanReversionBot, BreakoutBot
 - **AI insight scoring** with confidence and rationale
 - **Execution center** with presets and webhook-ready order payloads
+- **Wallet integration (watch-only)** for BTC and ETH balances/tx stats
+- **Real-time terminal** stream for top-signal updates and market pulse logs
+- **Installation executable**: `./install.sh`
 - **Fallback fixtures** to keep app functional if API calls fail
 
 ## Project Structure

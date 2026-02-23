@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -10,6 +12,7 @@ import streamlit as st
 
 from app.bot import BOT_PRESETS, build_order_plan
 from app.platform import build_asset_snapshot, build_market_insights
+from app.wallet import load_watch_wallets
 
 
 @st.cache_data(ttl=120)
@@ -20,6 +23,30 @@ def load_platform_data(currency: str, universe_size: int) -> dict:
 @st.cache_data(ttl=120)
 def load_asset_snapshot(coin_id: str, symbol: str, currency: str) -> dict:
     return build_asset_snapshot(coin_id=coin_id, symbol=symbol, vs_currency=currency, days=14)
+
+
+def render_splash() -> None:
+    st.markdown(
+        """
+        <style>
+          .hero {
+            background: linear-gradient(135deg,#151a2e,#1e274a,#093f5b);
+            padding: 22px;
+            border-radius: 14px;
+            border: 1px solid #2f3863;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            margin-bottom: 10px;
+          }
+          .hero h2 {margin:0; color:#d9e7ff;}
+          .hero p {margin:8px 0 0 0; color:#a9c1ff;}
+        </style>
+        <div class="hero">
+          <h2>⚡ Crypto Signal Pro Command Center</h2>
+          <p>Live market intelligence · bot consensus · execution terminal · wallet watchlist</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_header(payload: dict, currency: str) -> None:
@@ -51,7 +78,6 @@ def render_market_overview(payload: dict, currency: str) -> None:
     st.plotly_chart(scatter, use_container_width=True)
 
     col1, col2 = st.columns(2)
-
     with col1:
         treemap_df = market_df.nlargest(min(20, len(market_df)), "market_cap")
         tree = px.treemap(
@@ -66,9 +92,7 @@ def render_market_overview(payload: dict, currency: str) -> None:
         st.plotly_chart(tree, use_container_width=True)
 
     with col2:
-        movers = market_df.nlargest(min(12, len(market_df)), "momentum_24h")[
-            ["symbol", "momentum_24h", "volatility_score"]
-        ].copy()
+        movers = market_df.nlargest(min(12, len(market_df)), "momentum_24h")[["symbol", "momentum_24h", "volatility_score"]].copy()
         bar = px.bar(
             movers,
             x="symbol",
@@ -99,12 +123,8 @@ def render_asset_terminal(payload: dict, currency: str) -> None:
     price_fig.add_trace(go.Scatter(x=ind["timestamp"], y=ind["close"], mode="lines", name="Close"))
     price_fig.add_trace(go.Scatter(x=ind["timestamp"], y=ind["ema_20"], mode="lines", name="EMA 20"))
     price_fig.add_trace(go.Scatter(x=ind["timestamp"], y=ind["sma_20"], mode="lines", name="SMA 20"))
-    price_fig.add_trace(
-        go.Scatter(x=ind["timestamp"], y=ind["bb_upper"], mode="lines", name="BB Upper", line={"dash": "dot"})
-    )
-    price_fig.add_trace(
-        go.Scatter(x=ind["timestamp"], y=ind["bb_lower"], mode="lines", name="BB Lower", line={"dash": "dot"})
-    )
+    price_fig.add_trace(go.Scatter(x=ind["timestamp"], y=ind["bb_upper"], mode="lines", name="BB Upper", line={"dash": "dot"}))
+    price_fig.add_trace(go.Scatter(x=ind["timestamp"], y=ind["bb_lower"], mode="lines", name="BB Lower", line={"dash": "dot"}))
     price_fig.update_layout(template="plotly_dark", title=f"{selected['name']} Price + Key Indicators", height=420)
     st.plotly_chart(price_fig, use_container_width=True)
 
@@ -136,16 +156,45 @@ def render_asset_terminal(payload: dict, currency: str) -> None:
     st.dataframe(bot_df, use_container_width=True, hide_index=True)
 
     radar = go.Figure()
-    radar.add_trace(
-        go.Scatterpolar(
-            r=bot_df["score"].tolist(),
-            theta=bot_df["bot"].tolist(),
-            fill="toself",
-            name="Bot Score",
-        )
-    )
+    radar.add_trace(go.Scatterpolar(r=bot_df["score"].tolist(), theta=bot_df["bot"].tolist(), fill="toself", name="Bot Score"))
     radar.update_layout(template="plotly_dark", polar=dict(radialaxis=dict(visible=True, range=[0, 100])), title="Bot Score Radar")
     st.plotly_chart(radar, use_container_width=True)
+
+
+def render_wallet_tab() -> None:
+    st.subheader("Wallet Integration (Watch-only)")
+    st.caption("Track wallet balances and transactions without importing private keys.")
+
+    btc_addr = st.text_input("BTC Address", value="")
+    eth_addr = st.text_input("ETH Address", value="")
+
+    watchlist = []
+    if btc_addr.strip():
+        watchlist.append({"chain": "BTC", "address": btc_addr.strip()})
+    if eth_addr.strip():
+        watchlist.append({"chain": "ETH", "address": eth_addr.strip()})
+
+    if not watchlist:
+        st.info("Add a BTC and/or ETH address to load watch-only wallet stats.")
+        return
+
+    rows = load_watch_wallets(watchlist)
+    if not rows:
+        st.warning("Could not load wallet data from provider right now.")
+        return
+
+    wallet_df = pd.DataFrame(rows)
+    st.dataframe(wallet_df, use_container_width=True, hide_index=True)
+
+    fig = px.bar(
+        wallet_df,
+        x="chain",
+        y="balance",
+        color="tx_count",
+        title="Wallet Balances by Chain",
+        template="plotly_dark",
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 
 def render_ai_and_execution(payload: dict, market_df: pd.DataFrame) -> None:
@@ -158,7 +207,7 @@ def render_ai_and_execution(payload: dict, market_df: pd.DataFrame) -> None:
     with c2:
         top_scores = ai_df.head(min(12, len(ai_df))).copy()
         top_scores["label"] = top_scores["symbol"] + " · " + top_scores["confidence"]
-        gauge = px.bar_polar(
+        wheel = px.bar_polar(
             top_scores,
             r="score",
             theta="label",
@@ -167,7 +216,7 @@ def render_ai_and_execution(payload: dict, market_df: pd.DataFrame) -> None:
             title="AI Signal Strength Wheel",
             template="plotly_dark",
         )
-        st.plotly_chart(gauge, use_container_width=True)
+        st.plotly_chart(wheel, use_container_width=True)
 
     preset_name = st.selectbox("Execution preset", list(BOT_PRESETS.keys()), index=1)
     preset = BOT_PRESETS[preset_name]
@@ -190,14 +239,7 @@ def render_ai_and_execution(payload: dict, market_df: pd.DataFrame) -> None:
         return
 
     st.dataframe(orders_df, use_container_width=True, hide_index=True)
-
-    pie = px.pie(
-        orders_df,
-        names="symbol",
-        values="position_size_units",
-        title="Portfolio Allocation by Position Size",
-        template="plotly_dark",
-    )
+    pie = px.pie(orders_df, names="symbol", values="position_size_units", title="Portfolio Allocation by Position Size", template="plotly_dark")
     st.plotly_chart(pie, use_container_width=True)
 
     st.code(
@@ -211,10 +253,37 @@ def render_ai_and_execution(payload: dict, market_df: pd.DataFrame) -> None:
     )
 
 
+def render_realtime_terminal(payload: dict) -> None:
+    st.subheader("Real-Time Terminal")
+    st.caption("Live event stream (updates every rerun / refresh).")
+
+    if "terminal_lines" not in st.session_state:
+        st.session_state.terminal_lines = []
+
+    market_df = payload["market"]
+    ai_df = payload["ai_insights"]
+    ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    top = ai_df.iloc[0]
+    line = (
+        f"[{ts}] TOP={top['symbol']} SCORE={top['score']:.2f} ACTION={top['action']} "
+        f"MKT_AVG_24H={market_df['momentum_24h'].mean():.2f}%"
+    )
+
+    st.session_state.terminal_lines.append(line)
+    st.session_state.terminal_lines = st.session_state.terminal_lines[-40:]
+
+    if st.button("Clear terminal"):
+        st.session_state.terminal_lines = []
+
+    terminal_text = "\n".join(st.session_state.terminal_lines)
+    st.code(terminal_text if terminal_text else "Terminal is waiting for first update...", language="bash")
+
+
 def main() -> None:
     st.set_page_config(page_title="Crypto Signal Pro Platform", page_icon="📈", layout="wide")
+    render_splash()
     st.title("📈 Crypto Signal Pro: Trading Platform + Live Data Dashboard")
-    st.caption("Live market intelligence, full indicator stack, strategy bots, and execution planning.")
+    st.caption("Live market intelligence, full indicator stack, strategy bots, wallet watch, and execution planning.")
 
     with st.sidebar:
         st.header("Workspace Controls")
@@ -229,13 +298,19 @@ def main() -> None:
 
     render_header(payload, currency)
 
-    tab1, tab2, tab3 = st.tabs(["Market Dashboard", "Trading Terminal", "Execution Center"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(
+        ["Market Dashboard", "Trading Terminal", "Execution Center", "Wallets", "Live Terminal"]
+    )
     with tab1:
         render_market_overview(payload, currency)
     with tab2:
         render_asset_terminal(payload, currency)
     with tab3:
         render_ai_and_execution(payload, market_df)
+    with tab4:
+        render_wallet_tab()
+    with tab5:
+        render_realtime_terminal(payload)
 
 
 if __name__ == "__main__":
