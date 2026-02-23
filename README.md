@@ -1,47 +1,42 @@
-# Crypto Signal Pro Dashboard
+# Crypto Signal Pro
 
-A modern, professional crypto intelligence dashboard built with Streamlit.
+A clean, working repository for a professional Streamlit crypto dashboard.
 
-## What this project includes
+## Features
 
-- Real-time market data ingestion from **CoinGecko** (open public API)
-- Market sentiment ingestion from **Alternative.me Fear & Greed Index**
-- Professional analytics UI with three workspaces:
-  - **Market**: market structure and microtrend visuals
-  - **AI Insights**: actionable signal scoring and risk context
-  - **Auto Trade Bot**: presets, sizing logic, and webhook payload preview
-- Deterministic AI-style trade hints for explainable decision support
+- Real-time market data from CoinGecko
+- Sentiment feed from Alternative.me Fear & Greed index
+- Professional tabbed UI:
+  - Market structure analytics
+  - AI trade insights
+  - Auto-trade planning console
+- Bot presets with risk sizing and webhook payload output
+- Offline-friendly fallback sample data so the app still runs when APIs are unavailable
 
-## Auto Trade Bot features
+## Project layout
 
-- Strategy presets:
-  - `Scalp Pro`
-  - `Intraday Alpha`
-  - `Swing Smart`
-- Risk model controls:
-  - account size
-  - risk per trade
-  - max simultaneous positions
-  - stop-loss / take-profit percentages
-- Trade plan output per symbol:
-  - entry
-  - stop loss
-  - take profit
-  - position size units
-- Webhook-ready JSON preview for downstream execution services
+- `app/dashboard.py` — Streamlit application
+- `app/data_sources.py` — live API and fallback data providers
+- `app/signals.py` — deterministic AI-style signal engine
+- `app/bot.py` — presets and order plan generator
+- `tests/test_core.py` — core behavior checks
 
-## Run locally
+## Quickstart
 
 ```bash
-pip install -r app/requirements-dashboard.txt
+python -m pip install -r requirements.txt
 streamlit run app/dashboard.py
 ```
 
-## Data sources
+## Development commands
 
-- CoinGecko API: https://www.coingecko.com/en/api
-- Alternative.me Fear & Greed API: https://api.alternative.me/fng/
+```bash
+make install
+make lint
+make test
+make run
+```
 
 ## Disclaimer
 
-This software is for educational and research purposes only and does not constitute financial advice.
+Educational use only. This project does not provide financial advice.
