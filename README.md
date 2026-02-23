@@ -1,25 +1,38 @@
-# Crypto Signal Pro
+# Crypto Signal Pro Platform
 
-A clean, working repository for a professional Streamlit crypto dashboard.
+A rebuilt Python trading platform + data dashboard with live crypto market ingestion, full technical indicator coverage, strategy bots, and execution planning.
 
-## Features
+## Core capabilities
 
-- Real-time market data from CoinGecko
-- Sentiment feed from Alternative.me Fear & Greed index
-- Professional tabbed UI:
-  - Market structure analytics
-  - AI trade insights
-  - Auto-trade planning console
-- Bot presets with risk sizing and webhook payload output
-- Offline-friendly fallback sample data so the app still runs when APIs are unavailable
+- **Live market data** from CoinGecko (market universe + per-asset market chart)
+- **Professional dashboard UI** with tabs for market overview, trading terminal, and execution center
+- **Indicator engine** with:
+  - SMA / EMA
+  - RSI
+  - MACD (line, signal, histogram)
+  - Bollinger Bands
+  - ATR
+  - Stochastic (%K/%D)
+  - OBV
+  - VWAP
+- **Strategy bots**:
+  - TrendBot
+  - MeanReversionBot
+  - BreakoutBot
+- **AI insights** for each tracked asset with confidence and rationale
+- **Execution planner** with bot presets and webhook-ready order payload
+- **Fallback data mode** so the platform still runs when upstream APIs are unavailable
 
-## Project layout
+## Repository structure
 
-- `app/dashboard.py` — Streamlit application
-- `app/data_sources.py` — live API and fallback data providers
-- `app/signals.py` — deterministic AI-style signal engine
-- `app/bot.py` — presets and order plan generator
-- `tests/test_core.py` — core behavior checks
+- `app/dashboard.py` — Streamlit platform UI
+- `app/platform.py` — orchestration layer
+- `app/market_data.py` — live market data adapters
+- `app/indicators.py` — technical indicator engine
+- `app/bots.py` — strategy bots and signal aggregation
+- `app/signals.py` — deterministic AI insight scoring
+- `app/bot.py` — execution presets and order builder
+- `tests/test_core.py` — platform unit checks
 
 ## Quickstart
 
@@ -28,7 +41,7 @@ python -m pip install -r requirements.txt
 streamlit run app/dashboard.py
 ```
 
-## Development commands
+## Development
 
 ```bash
 make install
@@ -39,4 +52,4 @@ make run
 
 ## Disclaimer
 
-Educational use only. This project does not provide financial advice.
+Educational and research use only. This software is not financial advice.
